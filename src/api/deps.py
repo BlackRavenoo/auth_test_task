@@ -1,10 +1,9 @@
 from typing import Annotated
 
 import redis.asyncio as aioredis
-from fastapi import Depends, Header
+from fastapi import Depends, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.config import settings
 from src.domain.enums import ActionType, ResourceType
 from src.services.auth import AuthService
 from src.services.items import ItemService
@@ -37,9 +36,8 @@ async def get_item_repository(
 ) -> ItemRepository:
     return SqlItemRepository(session)
 
-async def get_redis() -> aioredis.Redis:
-    redis = await aioredis.from_url(settings.redis_url, encoding="utf-8", decode_responses=True)
-    return redis
+async def get_redis(request: Request) -> aioredis.Redis:
+    return request.app.state.redis
 
 async def get_token_repository(
     redis: Annotated[aioredis.Redis, Depends(get_redis)]
@@ -77,9 +75,10 @@ async def get_bearer_token(
 ) -> str:
     if not authorization:
         raise UnauthorizedException("Missing authorization header")
-    if not authorization.startswith("Bearer "):
+    scheme, _, token = authorization.partition(" ")
+    if scheme != "Bearer" or not token.strip():
         raise UnauthorizedException("Invalid authorization header")
-    return authorization.split(" ", maxsplit=1)[1]
+    return token.strip()
 
 AccessTokenDep = Annotated[str, Depends(get_bearer_token)]
 

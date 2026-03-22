@@ -9,3 +9,4 @@ tests/
 .gitignore
 Dockerfile
 docker-compose.yaml
+.coverage

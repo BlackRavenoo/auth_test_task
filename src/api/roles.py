@@ -18,7 +18,7 @@ async def get_roles(
 ) -> list[RoleEntity]:
     return await service.get_all()
 
-@router.get("/{id}", response_model=RoleResponse, status_code=status.HTTP_200_OK)
+@router.get("/{id:int}", response_model=RoleResponse, status_code=status.HTTP_200_OK)
 async def get_role(
     id: int,
     _user: Annotated[UserEntity, Depends(require_permission(ResourceType.ROLES, ActionType.READ))],
@@ -34,7 +34,7 @@ async def create_role(
 ) -> RoleEntity:
     return await service.create(data.name)
 
-@router.patch("/{id}", status_code=status.HTTP_200_OK)
+@router.patch("/{id:int}", status_code=status.HTTP_200_OK)
 async def update_role(
     id: int,
     data: RoleUpdate,
@@ -43,7 +43,7 @@ async def update_role(
 ):
     await service.update(id, data)
 
-@router.get("/{id}/permissions", response_model=list[RolePermissionResponse], status_code=status.HTTP_200_OK)
+@router.get("/{id:int}/permissions", response_model=list[RolePermissionResponse], status_code=status.HTTP_200_OK)
 async def get_role_permissions(
     id: int,
     _user: Annotated[UserEntity, Depends(require_permission(ResourceType.ROLES, ActionType.READ))],
@@ -51,7 +51,7 @@ async def get_role_permissions(
 ) -> list[RolePermissionResponse]:
     return await service.get_permissions(id)
 
-@router.put("/{id}/permissions/{resource}", response_model=RolePermissionResponse, status_code=status.HTTP_200_OK)
+@router.put("/{id:int}/permissions/{resource}", response_model=RolePermissionResponse, status_code=status.HTTP_200_OK)
 async def update_role_permission(
     id: int,
     resource: ResourceType,
@@ -61,7 +61,7 @@ async def update_role_permission(
 ) -> RolePermissionResponse:
     return await service.set_permission(id, resource, data)
 
-@router.delete("/{id}", status_code=status.HTTP_200_OK)
+@router.delete("/{id:int}", status_code=status.HTTP_200_OK)
 async def delete_role(
     id: int,
     _user: Annotated[UserEntity, Depends(require_permission(ResourceType.ROLES, ActionType.DELETE))],

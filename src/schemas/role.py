@@ -1,12 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.domain.enums import ResourceType
 
 class RoleCreate(BaseModel):
-    name: str
+    name: str = Field(min_length=2, max_length=64)
 
 class RoleUpdate(BaseModel):
-    name: str
+    name: str = Field(min_length=2, max_length=64)
 
 class RoleResponse(BaseModel):
     id: int

@@ -34,7 +34,7 @@ async def get_items_count(
 ) -> int:
     return await service.count()
 
-@router.get("/{id}", response_model=ItemResponse, status_code=status.HTTP_200_OK)
+@router.get("/{id:int}", response_model=ItemResponse, status_code=status.HTTP_200_OK)
 async def get_item(
     service: ItemServiceDep,
     id: int,
@@ -50,7 +50,7 @@ async def create_item(
 ) -> ItemEntity:
     return await service.create(data)
 
-@router.patch("/{id}", status_code=status.HTTP_200_OK)
+@router.patch("/{id:int}", status_code=status.HTTP_200_OK)
 async def update_item(
     service: ItemServiceDep,
     id: int,
@@ -59,7 +59,7 @@ async def update_item(
 ):
     await service.update(id, data)
 
-@router.delete("/{id}", status_code=status.HTTP_200_OK)
+@router.delete("/{id:int}", status_code=status.HTTP_200_OK)
 async def delete_item(
     id: int,
     _user: Annotated[UserEntity, Depends(require_permission(ResourceType.ITEMS, ActionType.DELETE))],

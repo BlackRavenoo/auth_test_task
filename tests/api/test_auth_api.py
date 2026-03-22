@@ -26,6 +26,18 @@ async def test_register_duplicate_email(client, payload):
     assert second.status_code == 409
 
 @pytest.mark.asyncio
+async def test_register_returns_validation_error_for_blank_name(client, payload):
+    invalid_payload = {**payload, "name": ""}
+    response = await client.post("/auth/register", json=invalid_payload)
+    assert response.status_code == 422
+
+@pytest.mark.asyncio
+async def test_register_returns_validation_error_for_mismatched_passwords(client, payload):
+    invalid_payload = {**payload, "password_repeat": "another-password-123"}
+    response = await client.post("/auth/register", json=invalid_payload)
+    assert response.status_code == 422
+
+@pytest.mark.asyncio
 async def test_login_success(client, payload):
     await client.post("/auth/register", json=payload)
 
@@ -75,6 +87,15 @@ async def test_logout_requires_authorization_header(client):
     response = await client.post(
         "/auth/logout",
         json={"refresh_token": "something"},
+    )
+    assert response.status_code == 401
+
+@pytest.mark.asyncio
+async def test_logout_rejects_empty_bearer_token(client):
+    response = await client.post(
+        "/auth/logout",
+        json={"refresh_token": "something"},
+        headers={"Authorization": "Bearer   "},
     )
     assert response.status_code == 401
 
