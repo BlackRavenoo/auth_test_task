@@ -1,0 +1,36 @@
+services:
+  backend:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-test_db}
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - 8000:8000
+    
+  postgres:
+    image: postgres:18
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-test_db}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_INITDB_ARGS="-c max_connections=1000"
+    volumes:
+      - pg_data:/var/lib/postgresql
+    healthcheck:
+      test: pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-test_db}
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    command: redis-server --save 900 1 --save 300 10 --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  pg_data:
+  redis_data:
